@@ -4,6 +4,7 @@ from ETL.Transform.AdjustOneTimeEventsTransformer import AdjustOneTimeEventsTran
 from ETL.Load.MoEngageUserPropertyLoader import MoEngageUserPropertyLoader
 
 def main():
+
     extractor = AWSSingleFileExtractor(
         filepath="https://bnxt-adjust-backups.s3.ap-south-1.amazonaws.com/Adjust-Merged-CSV-15-05-2025.csv.gz",
         compression='gzip'
