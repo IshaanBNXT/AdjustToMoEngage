@@ -63,3 +63,5 @@ EVENTS_COLUMNS = [
     '{fb_install_referrer_campaign_name}',
     '{fb_install_referrer_publisher_platform}'
 ]
+
+DEFAULT_TEST_USER_ID_UPPER_LIMIT = 9999
