@@ -27,12 +27,15 @@ SIGN_UP_FIRST_TRACKER_COLUMNS = [
     '{fb_install_referrer_publisher_platform}'
 ]
 
-ONETIME_EVENT_NAMES = [
+EVENT_NAMES = [
     'Signup_stage1',
+    'PAN/GST_verified_stage10',
+    'Card_Added_active',
+    'Payee_added_successfully',
     'KYC_initiated_stage19',
     'KYC _completed_stage20',
-    'PAN/GST_verified_stage10',
     'Unique_Transaction'
+    'Transaction_settled_successfully',
 ]
 
 EVENTS_COLUMNS = [
