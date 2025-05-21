@@ -1,12 +1,12 @@
 import pandas as pd
 
 from ETL.Interfaces.TransformerInterface import Transformer
-from Resources.MinimumRequiredColumns import ONETIME_EVENT_NAMES, EVENTS_COLUMNS
+from Resources.Config import ONETIME_EVENT_NAMES, EVENTS_COLUMNS, DEFAULT_TEST_USER_ID_UPPER_LIMIT
 
 
 class AdjustOneTimeEventsTransformer(Transformer):
 
-    def __init__(self, remove_test_users: bool = True, test_user_id_upper_limit: int = 9999):
+    def __init__(self, remove_test_users: bool=True, test_user_id_upper_limit: int=DEFAULT_TEST_USER_ID_UPPER_LIMIT):
         self.remove_test_users = remove_test_users
         self.test_user_id_upper_limit = test_user_id_upper_limit
 
