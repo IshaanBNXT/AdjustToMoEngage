@@ -3,7 +3,7 @@ from typing import List
 
 from ETL.Extract.AWSSingleFileExtractor import AWSSingleFileExtractor
 from ETL.Transform.AdjustSignUpFirstTrackerTransformer import AdjustSignUpFirstTrackerTransformer
-from ETL.Transform.AdjustOneTimeEventsTransformer import AdjustOneTimeEventsTransformer
+from ETL.Transform.AdjustEventsTransformer import AdjustEventsTransformer
 from ETL.Load.MoEngageUserPropertyLoader import MoEngageUserPropertyLoader
 
 def process_single_file(file_date: datetime.date=datetime.date.today()) -> bool:
@@ -14,7 +14,7 @@ def process_single_file(file_date: datetime.date=datetime.date.today()) -> bool:
         compression='gzip'
     )
     signup_transformer = AdjustSignUpFirstTrackerTransformer(remove_test_users=True, test_user_id_upper_limit=9999)
-    events_transformer = AdjustOneTimeEventsTransformer(remove_test_users=True, test_user_id_upper_limit=9999)
+    events_transformer = AdjustEventsTransformer(remove_test_users=True, test_user_id_upper_limit=9999)
     # TODO: Uploader Definition and Implementation
     # user_property_uploader = MoEngageUserPropertyLoader(destination, creds)
     # event_uploader = MoEngageEventLoader(destination, creds)
