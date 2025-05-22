@@ -8,20 +8,20 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from ETL.Interfaces.LoaderInterface import Loader
-from Resources.MoEngageDTO import MoEngageUserPropertyDTO
+from Resources.MoEngageDTO import MoEngageEventDTO
 
-class MoEngageUserPropertyLoader(Loader):
+class MoEngageEventLoader(Loader):
 
     def __init__(self):
         self.push_url = os.environ.get("MOENGAGE_JAVA_TRIGGER_ENDPOINT")
         self.concurrency = 100
 
     def upload_data(self, data: pd.DataFrame):
-        user_props = self.prepare_data(data=data)
-        results = asyncio.run(self.bulk_post(user_props))
+        event_list = self.prepare_data(data=data)
+        results = asyncio.run(self.bulk_post(event_list))
         return results
 
-    async def bulk_post(self, user_props: List[MoEngageUserPropertyDTO], concurrency: int=None):
+    async def bulk_post(self, event_list: List[MoEngageEventDTO], concurrency: int=None):
         if not concurrency:
             concurrency = self.concurrency
         semaphore = asyncio.Semaphore(concurrency)
@@ -30,10 +30,10 @@ class MoEngageUserPropertyLoader(Loader):
                 async with semaphore:
                     return await self.post_single_data(session, prop)
 
-            tasks = [bound_post(prop) for prop in user_props]
+            tasks = [bound_post(prop) for prop in event_list]
             return await asyncio.gather(*tasks, return_exceptions=True)
 
-    async def post_single_data(self, session, payload: MoEngageUserPropertyDTO):
+    async def post_single_data(self, session, payload: MoEngageEventDTO):
         try:
             async with session.post(self.push_url, json=payload.to_bnxt_dict()) as response:
                 response_text = await response.text()
@@ -52,29 +52,31 @@ class MoEngageUserPropertyLoader(Loader):
             }
 
 
-    def prepare_data(self, data) -> List[MoEngageUserPropertyDTO]:
-        user_props = []
+    def prepare_data(self, data) -> List[MoEngageEventDTO]:
+        event_list = []
         for index, row in data.iterrows():
-            first_tracker = row['{first_tracker_name}']
-            if first_tracker in ['Organic']:
+            event = row['{event_name}']
+            tracker = row['{tracker_name}']
+            if tracker in ['Organic']:
                 campaign = "Organic"
                 network = "Organic"
-            elif first_tracker in ['Unattributed']:
+            elif tracker in ['Unattributed']:
                 campaign = row['{fb_install_referrer_campaign_name}']
                 network = row['{fb_install_referrer_publisher_platform}']
-            elif "::" in first_tracker:
-                first_tracker_split = first_tracker.split("::")
-                campaign = first_tracker_split[1]
-                network = first_tracker_split[0]
+            elif "::" in tracker:
+                tracker_split = tracker.split("::")
+                campaign = tracker_split[1]
+                network = tracker_split[0]
             else:
                 # Edge Cases like User ID 1966658 in 04-05-2025 CSV
                 # First Tracker is just "Website", no Campaign Name, Network is "Website"
-                campaign = first_tracker
-                network = first_tracker
-            user_prop_obj = MoEngageUserPropertyDTO(
+                campaign = tracker
+                network = tracker
+            event_obj = MoEngageEventDTO(
                 user_id=row['[userId]'],
-                first_campaign=campaign,
-                first_network=network
+                event=event,
+                event_campaign=campaign,
+                event_network=network
             )
-            user_props.append(user_prop_obj)
-        return user_props
+            event_list.append(event_obj)
+        return event_list
