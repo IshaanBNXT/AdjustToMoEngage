@@ -13,7 +13,8 @@ from Resources.MoEngageDTO import MoEngageEventDTO
 class MoEngageEventLoader(Loader):
 
     def __init__(self):
-        self.push_url = os.environ.get("MOENGAGE_JAVA_TRIGGER_ENDPOINT")
+        # self.push_url = os.environ.get("MOENGAGE_JAVA_TRIGGER_ENDPOINT")
+        self.push_url = os.environ.get("MOENGAGE_PROD_EVENT_ENDPOINT")
         self.concurrency = 100
 
     def upload_data(self, data: pd.DataFrame):
@@ -28,14 +29,42 @@ class MoEngageEventLoader(Loader):
         async with aiohttp.ClientSession() as session:
             async def bound_post(prop):
                 async with semaphore:
-                    return await self.post_single_data(session, prop)
+                    # return await self.post_single_data_bnxt(session, prop)
+                    return await self.post_single_data_moengage(session, prop)
 
             tasks = [bound_post(prop) for prop in event_list]
             return await asyncio.gather(*tasks, return_exceptions=True)
 
-    async def post_single_data(self, session, payload: MoEngageEventDTO):
+    async def post_single_data_bnxt(self, session, payload: MoEngageEventDTO):
         try:
             async with session.post(self.push_url, json=payload.to_bnxt_dict()) as response:
+                response_text = await response.text()
+                if response.status != 200:
+                    print(f"Failed for {payload.user_id}: {response.status} - {response_text}")
+                return {
+                    "user_id": payload.user_id,
+                    "status": response.status,
+                    "response": response_text
+                }
+        except Exception as e:
+            print(f"Exception for {payload.user_id}: {e}")
+            return {
+                "user_id": payload.user_id,
+                "error": str(e)
+            }
+
+    async def post_single_data_moengage(self, session: aiohttp.ClientSession, payload: MoEngageEventDTO):
+        try:
+            app_id = os.environ.get("MOENGAGE_PROD_EVENT_PARAM_APP_ID")
+            token = os.environ.get("MOENGAGE_PROD_EVENT_TOKEN")
+            headers = {
+                "Authorization":"Basic "+token,
+                "Content-Type":"application/json"
+            }
+            params = {
+                "app_id":app_id
+            }
+            async with session.post(url=self.push_url, params=params, headers=headers, json=payload.to_moengage_dict()) as response:
                 response_text = await response.text()
                 if response.status != 200:
                     print(f"Failed for {payload.user_id}: {response.status} - {response_text}")
