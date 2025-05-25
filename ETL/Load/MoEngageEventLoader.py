@@ -105,7 +105,8 @@ class MoEngageEventLoader(Loader):
                 user_id=row['[userId]'],
                 event=event,
                 event_campaign=campaign,
-                event_network=network
+                event_network=network,
+                time=row['{created_at}']
             )
             event_list.append(event_obj)
         return event_list
