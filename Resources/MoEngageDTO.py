@@ -34,11 +34,12 @@ class MoEngageUserPropertyDTO:
 
 class MoEngageEventDTO:
 
-    def __init__(self, user_id: int, event: str, event_campaign: str, event_network: str):
+    def __init__(self, user_id: int, event: str, event_campaign: str, event_network: str, time: int):
         self.user_id = int(user_id)
         self.event = event
         self.event_campaign = event_campaign
         self.event_network = event_network
+        self.time = time
 
     def to_moengage_dict(self):
         return dict(
@@ -51,7 +52,8 @@ class MoEngageEventDTO:
                         "Event": self.event,
                         "Campaign": self.event_campaign,
                         "Network": self.event_network
-                    }
+                    },
+                    current_time=self.time,
                 )
             ]
         )
