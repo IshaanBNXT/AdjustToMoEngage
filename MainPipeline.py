@@ -7,7 +7,7 @@ from ETL.Transform.AdjustEventsTransformer import AdjustEventsTransformer
 from ETL.Load.MoEngageUserPropertyLoader import MoEngageUserPropertyLoader
 from ETL.Load.MoEngageEventLoader import MoEngageEventLoader
 
-def process_single_file(file_date: datetime.date=datetime.date.today()) -> bool:
+def process_single_file(file_date: datetime.date=datetime.date.today()-datetime.timedelta(days=1)) -> bool:
     success = False
 
     extractor = AWSSingleFileExtractor(
@@ -59,7 +59,7 @@ def process_files_in_range(start: datetime.date, end: datetime.date, exclude_sta
 
 
 if __name__ == '__main__':
-    process_single_file(datetime.date(2025,5,4))
+    # process_single_file(datetime.date(2025,5,4))
     import time
     import datetime
 
