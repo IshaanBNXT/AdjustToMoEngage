@@ -6,6 +6,16 @@ class MoEngageUserPropertyDTO:
         self.first_campaign = first_campaign
         self.first_network = first_network
 
+    def to_moengage_dict(self):
+        return dict(
+            type="customer",
+            customer_id=self.user_id,
+            attributes={
+                "First Campaign": self.first_campaign,
+                "First Network": self.first_network
+            }
+        )
+
     def to_bnxt_dict(self):
         return dict(
             eventName='Adjust_Events',
@@ -29,6 +39,22 @@ class MoEngageEventDTO:
         self.event = event
         self.event_campaign = event_campaign
         self.event_network = event_network
+
+    def to_moengage_dict(self):
+        return dict(
+            type="event",
+            customer_id=self.user_id,
+            actions=[
+                dict(
+                    action="Adjust_Events",
+                    attributes={
+                        "Event": self.event,
+                        "Campaign": self.event_campaign,
+                        "Network": self.event_network
+                    }
+                )
+            ]
+        )
 
     def to_bnxt_dict(self):
         return dict(
